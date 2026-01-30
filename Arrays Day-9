@@ -1,0 +1,101 @@
+------------N-Queens-----------
+
+The n-queens puzzle is the problem of placing n queens on an n x n chessboard such that no two queens attack each other.
+
+Given an integer n, return all distinct solutions to the n-queens puzzle. You may return the answer in any order.
+
+Each solution contains a distinct board configuration of the n-queens' placement, where 'Q' and '.' both indicate a queen and an empty space, respectively.
+
+Example 1:
+
+
+Input: n = 4
+Output: [[".Q..","...Q","Q...","..Q."],["..Q.","Q...","...Q",".Q.."]]
+Explanation: There exist two distinct solutions to the 4-queens puzzle as shown above
+
+// --------------------------------------------------------
+// N-Queens Problem - Java Backtracking Solution
+// --------------------------------------------------------
+
+// where no two queens attack each other.
+// It uses sets to track columns and diagonals to ensure O(1) safety checks.
+// --------------------------------------------------------
+
+class Solution {
+    public List<List<String>> solveNQueens(int n) {
+
+        List<List<String>> result = new ArrayList<>();
+        char[][] board = new char[n][n];
+
+        // Initialize the board with '.'
+        for (int i = 0; i < n; i++) {
+            Arrays.fill(board[i], '.');
+        }
+
+        // Sets to track unsafe positions
+        Set<Integer> columns = new HashSet<>();     // columns occupied
+        Set<Integer> posDiag = new HashSet<>();     // r + c
+        Set<Integer> negDiag = new HashSet<>();     // r - c
+
+        // Start backtracking from row 0
+        backtrack(0, n, board, columns, posDiag, negDiag, result);
+
+        return result;
+    }
+
+    // --------------------------------------------------------
+    // Backtracking method to place queens row-by-row
+    // --------------------------------------------------------
+    private void backtrack(int row, int n,
+                           char[][] board,
+                           Set<Integer> columns,
+                           Set<Integer> posDiag,
+                           Set<Integer> negDiag,
+                           List<List<String>> result) {
+
+        // Base case: all rows are filled → valid solution
+        if (row == n) {
+            result.add(constructBoard(board));
+            return;
+        }
+
+        // Try placing queen at each column in current row
+        for (int col = 0; col < n; col++) {
+
+            // Check if position is under attack
+            if (columns.contains(col) ||
+                posDiag.contains(row + col) ||
+                negDiag.contains(row - col)) {
+                continue;  // cannot place queen here
+            }
+
+            // --------------------------------------------------------
+            // Choose: place queen at (row, col)
+            // --------------------------------------------------------
+            board[row][col] = 'Q';
+            columns.add(col);
+            posDiag.add(row + col);
+            negDiag.add(row - col);
+
+            // Move to next row
+            backtrack(row + 1, n, board, columns, posDiag, negDiag, result);
+
+            // --------------------------------------------------------
+            // Backtrack: remove queen from (row, col)
+            // --------------------------------------------------------
+            board[row][col] = '.';
+            columns.remove(col);
+            posDiag.remove(row + col);
+            negDiag.remove(row - col);
+        }
+    }
+
+    // Convert 2D char board into List<String>
+    private List<String> constructBoard(char[][] board) {
+        List<String> res = new ArrayList<>();
+        for (char[] row : board) {
+            res.add(new String(row));
+        }
+        return res;
+    }
+}
